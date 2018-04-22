@@ -38,13 +38,15 @@ public class ImageListFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        gridView.setAdapter(new ImageAdapter(getContext()));
-        gridView.setOnItemClickListener((parent, v, position, id) -> Toast.makeText(getActivity(), "" + position,
-                Toast.LENGTH_SHORT).show());
+        if (isExternalStorageReadable()) {
+            ArrayList<File> imageFiles = imageReader(Environment.getExternalStorageDirectory());
+            for (File file : imageFiles) {
+                printLog("image name = " + file.getName());
+            }
 
-        ArrayList<File> imageFiles = imageReader(Environment.getExternalStorageDirectory());
-        for (File file : imageFiles) {
-            printLog("image name = " + file.getName());
+            gridView.setAdapter(new ImageAdapter(getContext(), imageFiles));
+            gridView.setOnItemClickListener((parent, v, position, id) -> Toast.makeText(getActivity(), "" + position,
+                    Toast.LENGTH_SHORT).show());
         }
     }
 
@@ -67,15 +69,6 @@ public class ImageListFragment extends BaseFragment {
             }
         }
         return a;
-    }
-
-    /* Checks if external storage is available for read and write */
-    public boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state)) {
-            return true;
-        }
-        return false;
     }
 
     /* Checks if external storage is available to at least read */
