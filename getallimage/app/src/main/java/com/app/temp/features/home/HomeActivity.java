@@ -15,7 +15,7 @@ import android.widget.ListView;
 import com.app.temp.R;
 import com.app.temp.base.activity.BaseActivity;
 import com.app.temp.base.adapter.MenuAdapter;
-import com.app.temp.features.home.imagelist.ImageListFragment;
+import com.app.temp.features.home.imagelist.PhotoListFragment;
 import com.app.temp.features.home.repolist.RepoListFragment;
 import com.app.temp.features.register.RegisterFragment;
 import com.app.temp.views.ToolbarView;
@@ -66,7 +66,7 @@ public class HomeActivity extends BaseActivity {
                     new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
                     MY_PERMISSIONS_REQUEST_STORE);
         } else {
-            transactionFragment(ImageListFragment.newInstance());
+            transactionFragment(PhotoListFragment.newInstance());
         }
     }
 
@@ -77,7 +77,7 @@ public class HomeActivity extends BaseActivity {
             case MY_PERMISSIONS_REQUEST_STORE: {
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    transactionFragment(ImageListFragment.newInstance());
+                    transactionFragment(PhotoListFragment.newInstance());
                 }
                 return;
             }
@@ -100,7 +100,7 @@ public class HomeActivity extends BaseActivity {
         mFragmentName.put(RepoListFragment.class.getSimpleName(), getString(R.string.fragment_name_home));
         mFragmentName.put(Home2Fragment.class.getSimpleName(), getString(R.string.fragment_name_home_2));
         mFragmentName.put(RegisterFragment.class.getSimpleName(), getString(R.string.fragment_name_register));
-        mFragmentName.put(ImageListFragment.class.getSimpleName(), getString(R.string.fragment_name_image_list));
+        mFragmentName.put(PhotoListFragment.class.getSimpleName(), getString(R.string.fragment_name_image_list));
     }
 
     public void initMenuData() {

@@ -17,13 +17,13 @@ import java.util.ArrayList;
 
 import butterknife.BindView;
 
-public class ImageListFragment extends BaseFragment {
+public class PhotoListFragment extends BaseFragment {
 
     @BindView(R.id.gridview)
     GridView gridView;
 
-    public static ImageListFragment newInstance() {
-        ImageListFragment fragment = new ImageListFragment();
+    public static PhotoListFragment newInstance() {
+        PhotoListFragment fragment = new PhotoListFragment();
         return fragment;
     }
 
@@ -31,7 +31,7 @@ public class ImageListFragment extends BaseFragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
-        return inflater.inflate(R.layout.fragment_image_list, container, false);
+        return inflater.inflate(R.layout.fragment_photo_list, container, false);
     }
 
     @Override
@@ -44,7 +44,7 @@ public class ImageListFragment extends BaseFragment {
                 printLog("image name = " + file.getName());
             }
 
-            gridView.setAdapter(new ImageAdapter(getContext(), imageFiles));
+            gridView.setAdapter(new PhotoAdapter(getContext(), imageFiles));
             gridView.setOnItemClickListener((parent, v, position, id) -> Toast.makeText(getActivity(), "" + position,
                     Toast.LENGTH_SHORT).show());
         }
@@ -54,17 +54,17 @@ public class ImageListFragment extends BaseFragment {
         ArrayList<File> a = new ArrayList<>();
 
         File[] files = root.listFiles();
-        for (int i = 0; i < files.length; i++) {
-            if (files[i].isDirectory()) {
-                a.addAll(imageReader(files[i]));
+        for (File file : files) {
+            if (file.isDirectory()) {
+                a.addAll(imageReader(file));
             } else {
-                if (files[i].getName().toLowerCase().endsWith(".jpg")
-                        || files[i].getName().toLowerCase().endsWith(".jpeg")
-                        || files[i].getName().toLowerCase().endsWith(".png")
-                        || files[i].getName().toLowerCase().endsWith(".bmp")
-                        || files[i].getName().toLowerCase().endsWith(".svg")
+                if (file.getName().toLowerCase().endsWith(".jpg")
+                        || file.getName().toLowerCase().endsWith(".jpeg")
+                        || file.getName().toLowerCase().endsWith(".png")
+                        || file.getName().toLowerCase().endsWith(".bmp")
+                        || file.getName().toLowerCase().endsWith(".svg")
                         ) {
-                    a.add(files[i]);
+                    a.add(file);
                 }
             }
         }
@@ -74,10 +74,7 @@ public class ImageListFragment extends BaseFragment {
     /* Checks if external storage is available to at least read */
     public boolean isExternalStorageReadable() {
         String state = Environment.getExternalStorageState();
-        if (Environment.MEDIA_MOUNTED.equals(state) ||
-                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state)) {
-            return true;
-        }
-        return false;
+        return Environment.MEDIA_MOUNTED.equals(state) ||
+                Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
     }
 }

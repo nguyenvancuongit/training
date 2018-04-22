@@ -6,24 +6,23 @@ import android.view.ViewGroup;
 import android.widget.BaseAdapter;
 import android.widget.ImageView;
 
-import com.app.temp.R;
 import com.bumptech.glide.Glide;
 
 import java.io.File;
 import java.util.ArrayList;
 
-public class ImageAdapter extends BaseAdapter {
+public class PhotoAdapter extends BaseAdapter {
     private Context mContext;
 
-    ArrayList<File> imageFiles;
+    ArrayList<File> photoFiles;
 
-    public ImageAdapter(Context c, ArrayList<File> files) {
+    public PhotoAdapter(Context c, ArrayList<File> files) {
         mContext = c;
-        imageFiles = files;
+        photoFiles = files;
     }
 
     public int getCount() {
-        return imageFiles.size();
+        return photoFiles.size();
     }
 
     public Object getItem(int position) {
@@ -36,20 +35,20 @@ public class ImageAdapter extends BaseAdapter {
 
     // create a new ImageView for each item referenced by the Adapter
     public View getView(int position, View convertView, ViewGroup parent) {
-        ImageView imageView;
+        ImageView photoView;
         if (convertView == null) {
             // if it's not recycled, initialize some attributes
-            imageView = new ImageView(mContext);
-            imageView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
-            imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            imageView.setPadding(8, 8, 8, 8);
+            photoView = new ImageView(mContext);
+            photoView.setLayoutParams(new ViewGroup.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 300));
+            photoView.setScaleType(ImageView.ScaleType.CENTER_CROP);
+            photoView.setPadding(8, 8, 8, 8);
         } else {
-            imageView = (ImageView) convertView;
+            photoView = (ImageView) convertView;
         }
 
         Glide.with(mContext)
-                .load(imageFiles.get(position))
-                .into(imageView);
-        return imageView;
+                .load(photoFiles.get(position))
+                .into(photoView);
+        return photoView;
     }
 }
