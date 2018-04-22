@@ -1,0 +1,13 @@
+<resources>
+    <!--global string-->
+    <string name="app_name">TempApplication</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="ok">OK</string>
+    <string name="cancel">Cancel</string>
+
+    <!--fragment name-->
+    <string name="fragment_name_home">Home</string>
+    <string name="fragment_name_home_2">Home 2</string>
+    <string name="fragment_name_register">Register</string>
+    <string name="fragment_name_image_list">Image</string>
+</resources>
