@@ -1,0 +1,15 @@
+- retrolamda (remove cuz AS 3.0 is already supported)
+- config signing config to build release apk by gradle
+- use different application id for debug and release build
+- add sample key store, define key store password on gradle.property file
+- use different icon for debug and release
+- base activity
+- base fragment
+- package by feature
+- ButterKnife
+- proguard
+- rxjava
+- OkHttp
+- retrofit
+- gson
+- dagger
