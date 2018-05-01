@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <declare-styleable name="ToolbarView">
-        <attr name="show_button_menu" format="boolean"/>
+        <attr name="show_button_menu" format="boolean" />
     </declare-styleable>
 </resources>

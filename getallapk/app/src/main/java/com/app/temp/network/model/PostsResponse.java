@@ -20,8 +20,8 @@ public class PostsResponse {
         this.posts = posts;
     }
 
-    public void add(Post post){
-        if(posts == null){
+    public void add(Post post) {
+        if (posts == null) {
             posts = new LinkedList<>();
         }
         posts.add(post);

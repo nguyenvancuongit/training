@@ -22,7 +22,7 @@ public class RepositoriesResponseDeserializerJson implements JsonDeserializer<Re
         RepositoriesResponse repositoriesResponse = new RepositoriesResponse();
         JsonArray jsonArray = je.getAsJsonArray();
         Gson gson = new Gson();
-        for(JsonElement element : jsonArray){
+        for (JsonElement element : jsonArray) {
             Repository repository = gson.fromJson(element.getAsJsonObject(), Repository.class);
             repositoriesResponse.add(repository);
         }

@@ -31,7 +31,8 @@ public abstract class BaseActivity extends AppCompatActivity {
     ProgressDialog mProgressDialog;
     Toast mToast;
 
-    @Inject API api;
+    @Inject
+    API api;
     Disposable disposable;
 
     @Override

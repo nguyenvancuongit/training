@@ -11,9 +11,10 @@ import android.widget.ListView;
 import com.app.temp.R;
 import com.app.temp.base.activity.BaseActivity;
 import com.app.temp.base.adapter.MenuAdapter;
+import com.app.temp.features.home.app_manager.AppManagerFragment;
 import com.app.temp.features.home.repolist.RepoListFragment;
-import com.app.temp.views.ToolbarView;
 import com.app.temp.features.register.RegisterFragment;
+import com.app.temp.views.ToolbarView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -48,7 +49,7 @@ public class HomeActivity extends BaseActivity {
         initMenuData();
 
         // init first screen
-        transactionFragment(RepoListFragment.newInstance());
+        transactionFragment(AppManagerFragment.newInstance());
     }
 
     private void initToolbar() {
