@@ -1,5 +1,6 @@
 package com.app.temp.features.home.app_manager;
 
+import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
@@ -29,5 +30,15 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
     @Override
     public int getCount() {
         return NUMBER_PAGE;
+    }
+
+    @Nullable
+    @Override
+    public CharSequence getPageTitle(int position) {
+        if (position == INDEX_FRAGMENT_APP_LIST) {
+            return "Installed";
+        } else {
+            return "Apk";
+        }
     }
 }

@@ -1,9 +1,14 @@
 package com.app.temp.features.home;
 
+import android.Manifest;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ListView;
@@ -23,6 +28,9 @@ import java.util.List;
 import butterknife.BindView;
 
 public class HomeActivity extends BaseActivity {
+
+    private static final int MY_PERMISSIONS_REQUEST_STORE = 9900;
+
     @BindView(R.id.toolbar)
     ToolbarView toolbar;
     @BindView(R.id.drawer_layout)
@@ -48,8 +56,32 @@ public class HomeActivity extends BaseActivity {
         initFragmentsName();
         initMenuData();
 
-        // init first screen
-        transactionFragment(AppManagerFragment.newInstance());
+        // permission
+        if (ContextCompat.checkSelfPermission(this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED
+                || ContextCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE)
+                != PackageManager.PERMISSION_GRANTED) {
+
+            ActivityCompat.requestPermissions(this,
+                    new String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE, Manifest.permission.READ_EXTERNAL_STORAGE},
+                    MY_PERMISSIONS_REQUEST_STORE);
+        } else {
+            transactionFragment(AppManagerFragment.newInstance());
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case MY_PERMISSIONS_REQUEST_STORE: {
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                    restart();
+                }
+            }
+        }
     }
 
     private void initToolbar() {
@@ -164,5 +196,11 @@ public class HomeActivity extends BaseActivity {
         } else {
             return null;
         }
+    }
+
+    public void restart(){
+        Intent intent = new Intent(this, HomeActivity.class);
+        this.startActivity(intent);
+        this.finishAffinity();
     }
 }

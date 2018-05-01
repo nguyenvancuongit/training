@@ -2,6 +2,7 @@ package com.app.temp.features.home.app_manager;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -16,6 +17,8 @@ public class AppManagerFragment extends BaseFragment {
 
     @BindView(R.id.pager)
     ViewPager mPager;
+    @BindView(R.id.tab_layout)
+    TabLayout mTabLayout;
 
     private android.support.v4.view.PagerAdapter mPagerAdapter;
 
@@ -37,5 +40,7 @@ public class AppManagerFragment extends BaseFragment {
 
         mPagerAdapter = new PagerAdapter(getActivity().getSupportFragmentManager());
         mPager.setAdapter(mPagerAdapter);
+
+        mTabLayout.setupWithViewPager(mPager);
     }
 }
