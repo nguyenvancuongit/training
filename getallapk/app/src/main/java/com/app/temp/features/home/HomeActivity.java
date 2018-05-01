@@ -198,7 +198,7 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    public void restart(){
+    public void restart() {
         Intent intent = new Intent(this, HomeActivity.class);
         this.startActivity(intent);
         this.finishAffinity();

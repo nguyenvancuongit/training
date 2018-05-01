@@ -1,5 +1,6 @@
 package com.app.temp.features.home.app_manager.apk_list;
 
+import android.content.pm.ApplicationInfo;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -11,7 +12,6 @@ import android.view.ViewGroup;
 
 import com.app.temp.R;
 import com.app.temp.base.fragment.BaseFragment;
-import com.app.temp.features.home.app_manager.installed_list.AppAdapter;
 import com.app.temp.pojo.ApkFile;
 
 import java.io.File;
@@ -27,6 +27,14 @@ public class ListApkFragment extends BaseFragment {
 
     private ApkAdapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    public List<ApplicationInfo> getApplicationInfos() {
+        return mAdapter.getApplicationInfos();
+    }
+
+    public void setApplicationInfos(List<ApplicationInfo> mApplicationInfos) {
+        mAdapter.setApplicationInfos(mApplicationInfos);
+    }
 
     public static ListApkFragment newInstance() {
         ListApkFragment fragment = new ListApkFragment();

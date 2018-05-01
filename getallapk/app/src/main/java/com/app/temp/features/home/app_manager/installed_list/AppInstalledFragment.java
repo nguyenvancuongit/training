@@ -11,12 +11,10 @@ import android.view.ViewGroup;
 
 import com.app.temp.R;
 import com.app.temp.base.fragment.BaseFragment;
-import com.app.temp.utils.AppManagerUtil;
 
 import java.util.List;
 
 import butterknife.BindView;
-import io.reactivex.Observable;
 
 public class AppInstalledFragment extends BaseFragment {
 
@@ -25,6 +23,19 @@ public class AppInstalledFragment extends BaseFragment {
 
     private RecyclerView.Adapter mAdapter;
     private RecyclerView.LayoutManager mLayoutManager;
+
+    private List<ApplicationInfo> mApplicationInfos;
+
+    public List<ApplicationInfo> getApplicationInfos() {
+        return mApplicationInfos;
+    }
+
+    public void setApplicationInfos(List<ApplicationInfo> mApplicationInfos) {
+        this.mApplicationInfos = mApplicationInfos;
+        if (mAdapter != null) {
+            mAdapter.notifyDataSetChanged();
+        }
+    }
 
     public static AppInstalledFragment newInstance() {
         AppInstalledFragment fragment = new AppInstalledFragment();
@@ -42,23 +53,11 @@ public class AppInstalledFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        Observable<List<ApplicationInfo>> observable = Observable.create(emitter -> {
-            try {
-                List<ApplicationInfo> applicationInfos = AppManagerUtil.getApplicationInfos(getContext());
-                emitter.onNext(applicationInfos);
-                emitter.onComplete();
-            } catch (Exception e) {
-                emitter.onError(e);
-            }
-        });
+        rcList.setHasFixedSize(true);
+        mLayoutManager = new LinearLayoutManager(getContext());
+        rcList.setLayoutManager(mLayoutManager);
 
-        disposable = observable.subscribe(applicationInfos -> {
-            rcList.setHasFixedSize(true);
-            mLayoutManager = new LinearLayoutManager(getContext());
-            rcList.setLayoutManager(mLayoutManager);
-
-            mAdapter = new AppAdapter(getContext(), applicationInfos);
-            rcList.setAdapter(mAdapter);
-        });
+        mAdapter = new AppAdapter(getContext(), mApplicationInfos);
+        rcList.setAdapter(mAdapter);
     }
 }
