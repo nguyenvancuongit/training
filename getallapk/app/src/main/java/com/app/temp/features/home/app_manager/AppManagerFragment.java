@@ -10,6 +10,7 @@ import android.view.View;
 import android.view.ViewGroup;
 
 import com.app.temp.R;
+import com.app.temp.base.constant.Constant;
 import com.app.temp.base.fragment.BaseFragment;
 import com.app.temp.features.home.app_manager.apk_list.ListApkFragment;
 import com.app.temp.features.home.app_manager.installed_list.AppInstalledFragment;
@@ -86,19 +87,20 @@ public class AppManagerFragment extends BaseFragment {
     }
 
     private void updateListAppInstalledForAllFragment(List<ApplicationInfo> applicationInfos) {
-        if (mPager.getCurrentItem() == 0) {
+        if (mPager.getCurrentItem() == Constant.INDEX_FRAGMENT_APP_LIST) {
             AppInstalledFragment frag1 = (AppInstalledFragment) mPager
                     .getAdapter()
                     .instantiateItem(mPager, mPager.getCurrentItem());
             if (frag1.getApplicationInfos() == null || frag1.getApplicationInfos().size() == 0) {
                 frag1.setApplicationInfos(applicationInfos);
             }
-        } else if (mPager.getCurrentItem() == 1) {
-            ListApkFragment frag2 = (ListApkFragment) mPager
+        } else if (mPager.getCurrentItem() == Constant.INDEX_FRAGMENT_APK_INSTALLED_LIST
+                || mPager.getCurrentItem() == Constant.INDEX_FRAGMENT_APK_NOT_INSTALLED_LIST) {
+            ListApkFragment listApkFragment = (ListApkFragment) mPager
                     .getAdapter()
                     .instantiateItem(mPager, mPager.getCurrentItem());
-            if (frag2.getApplicationInfos() == null || frag2.getApplicationInfos().size() == 0) {
-                frag2.setApplicationInfos(applicationInfos);
+            if (listApkFragment.getApplicationInfos() == null || listApkFragment.getApplicationInfos().size() == 0) {
+                listApkFragment.setApplicationInfos(applicationInfos);
             }
         }
     }

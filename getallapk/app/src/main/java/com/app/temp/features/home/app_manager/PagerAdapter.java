@@ -5,14 +5,11 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentStatePagerAdapter;
 
+import com.app.temp.base.constant.Constant;
 import com.app.temp.features.home.app_manager.apk_list.ListApkFragment;
 import com.app.temp.features.home.app_manager.installed_list.AppInstalledFragment;
 
 public class PagerAdapter extends FragmentStatePagerAdapter {
-
-    private static final int NUMBER_PAGE = 2;
-    private static final int INDEX_FRAGMENT_APP_LIST = 0;
-    private static final int INDEX_FRAGMENT_APK_LIST = 1;
 
     public PagerAdapter(FragmentManager fm) {
         super(fm);
@@ -20,25 +17,31 @@ public class PagerAdapter extends FragmentStatePagerAdapter {
 
     @Override
     public Fragment getItem(int position) {
-        if (position == INDEX_FRAGMENT_APP_LIST) {
+        if (position == Constant.INDEX_FRAGMENT_APP_LIST) {
             return AppInstalledFragment.newInstance();
-        } else {
-            return ListApkFragment.newInstance();
+        } else if (position == Constant.INDEX_FRAGMENT_APK_INSTALLED_LIST) {
+            return ListApkFragment.newInstance().setShowingInstalled(true);
+        } else if (position == Constant.INDEX_FRAGMENT_APK_NOT_INSTALLED_LIST) {
+            return ListApkFragment.newInstance().setShowingInstalled(false);
         }
+        return null;
     }
 
     @Override
     public int getCount() {
-        return NUMBER_PAGE;
+        return Constant.NUMBER_PAGE;
     }
 
     @Nullable
     @Override
     public CharSequence getPageTitle(int position) {
-        if (position == INDEX_FRAGMENT_APP_LIST) {
-            return "Installed";
-        } else {
-            return "Apk";
+        if (position == Constant.INDEX_FRAGMENT_APP_LIST) {
+            return "App Installed";
+        } else if (position == Constant.INDEX_FRAGMENT_APK_INSTALLED_LIST) {
+            return "Apk Installed";
+        } else if (position == Constant.INDEX_FRAGMENT_APK_NOT_INSTALLED_LIST) {
+            return "Not installed";
         }
+        return "";
     }
 }
