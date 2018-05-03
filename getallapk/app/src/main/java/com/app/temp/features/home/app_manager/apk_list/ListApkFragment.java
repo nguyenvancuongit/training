@@ -38,7 +38,6 @@ public class ListApkFragment extends BaseFragment {
 
     public void setApplicationInfos(List<ApplicationInfo> mApplicationInfos) {
         this.mApplicationInfos = mApplicationInfos;
-
         setUpAdapter(mApkFiles);
     }
 
@@ -73,36 +72,37 @@ public class ListApkFragment extends BaseFragment {
 
         if (isExternalStorageReadable()) {
             mApkFiles = apkReader(Environment.getExternalStorageDirectory());
-
             setUpAdapter(mApkFiles);
         }
     }
 
     private void setUpAdapter(List<ApkFile> apkFiles) {
-        // check if we need to show installed or not installed
-        List<ApkFile> installedArray = new ArrayList<>();
-        List<ApkFile> notInstalledArray = new ArrayList<>();
-        for (ApkFile apkFile : apkFiles) {
-            PackageInfo packageInfo = mPackageManager.getPackageArchiveInfo(apkFile.getFile().getPath(), 0);
-            // check exist on installed list
-            if (isExistOnInstalledList(packageInfo)) {
-                installedArray.add(apkFile);
-            } else {
-                notInstalledArray.add(apkFile);
+        if (rcList != null) {
+            // check if we need to show installed or not installed
+            List<ApkFile> installedArray = new ArrayList<>();
+            List<ApkFile> notInstalledArray = new ArrayList<>();
+            for (ApkFile apkFile : apkFiles) {
+                PackageInfo packageInfo = mPackageManager.getPackageArchiveInfo(apkFile.getFile().getPath(), 0);
+                // check exist on installed list
+                if (isExistOnInstalledList(packageInfo)) {
+                    installedArray.add(apkFile);
+                } else {
+                    notInstalledArray.add(apkFile);
+                }
             }
-        }
 
-        rcList.setHasFixedSize(true);
-        RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
-        rcList.setLayoutManager(mLayoutManager);
+            rcList.setHasFixedSize(true);
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+            rcList.setLayoutManager(mLayoutManager);
 
-        ApkAdapter mAdapter;
-        if (isShowingInstalled()) {
-            mAdapter = new ApkAdapter(installedArray);
-        } else {
-            mAdapter = new ApkAdapter(notInstalledArray);
+            ApkAdapter mAdapter;
+            if (isShowingInstalled()) {
+                mAdapter = new ApkAdapter(installedArray);
+            } else {
+                mAdapter = new ApkAdapter(notInstalledArray);
+            }
+            rcList.setAdapter(mAdapter);
         }
-        rcList.setAdapter(mAdapter);
     }
 
     private boolean isExistOnInstalledList(PackageInfo packageInfo) {

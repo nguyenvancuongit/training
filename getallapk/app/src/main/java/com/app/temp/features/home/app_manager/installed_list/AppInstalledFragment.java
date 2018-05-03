@@ -21,9 +21,6 @@ public class AppInstalledFragment extends BaseFragment {
     @BindView(R.id.rc_list)
     RecyclerView rcList;
 
-    private RecyclerView.Adapter mAdapter;
-    private RecyclerView.LayoutManager mLayoutManager;
-
     private List<ApplicationInfo> mApplicationInfos;
 
     public List<ApplicationInfo> getApplicationInfos() {
@@ -32,9 +29,7 @@ public class AppInstalledFragment extends BaseFragment {
 
     public void setApplicationInfos(List<ApplicationInfo> mApplicationInfos) {
         this.mApplicationInfos = mApplicationInfos;
-        if (mAdapter != null) {
-            mAdapter.notifyDataSetChanged();
-        }
+        setUpAdapter();
     }
 
     public static AppInstalledFragment newInstance() {
@@ -52,12 +47,17 @@ public class AppInstalledFragment extends BaseFragment {
     @Override
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
+        setUpAdapter();
+    }
 
-        rcList.setHasFixedSize(true);
-        mLayoutManager = new LinearLayoutManager(getContext());
-        rcList.setLayoutManager(mLayoutManager);
+    private void setUpAdapter() {
+        if (rcList != null) {
+            rcList.setHasFixedSize(true);
+            RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
+            rcList.setLayoutManager(mLayoutManager);
 
-        mAdapter = new AppAdapter(getContext(), mApplicationInfos);
-        rcList.setAdapter(mAdapter);
+            AppAdapter mAdapter = new AppAdapter(getContext(), mApplicationInfos);
+            rcList.setAdapter(mAdapter);
+        }
     }
 }
