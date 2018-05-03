@@ -14,6 +14,8 @@ import android.widget.TextView;
 import com.app.temp.R;
 import com.bumptech.glide.Glide;
 
+import java.io.File;
+import java.text.DecimalFormat;
 import java.util.List;
 
 public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
@@ -40,7 +42,18 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         ApplicationInfo app = mApps.get(position);
         holder.tvName.setText(app.loadLabel(packageManager));
+
+        File file = new File(app.publicSourceDir);
+        holder.tvSize.setText(String.valueOf(getFileSize(file.length())));
         Glide.with(context).load(app.loadIcon(packageManager)).into(holder.imgThumbnail);
+    }
+
+    public static String getFileSize(long size) {
+        if (size <= 0)
+            return "0";
+        final String[] units = new String[]{"B", "KB", "MB", "GB", "TB"};
+        int digitGroups = (int) (Math.log10(size) / Math.log10(1024));
+        return new DecimalFormat("#,##0.#").format(size / Math.pow(1024, digitGroups)) + " " + units[digitGroups];
     }
 
     @Override
@@ -52,12 +65,14 @@ public class AppAdapter extends RecyclerView.Adapter<AppAdapter.ViewHolder> {
 
         private ImageView imgThumbnail;
         private TextView tvName;
+        private TextView tvSize;
 
         public ViewHolder(View v) {
             super(v);
 
             imgThumbnail = v.findViewById(R.id.img_thumbnail);
             tvName = v.findViewById(R.id.tv_name);
+            tvSize = v.findViewById(R.id.tv_size);
         }
     }
 }
