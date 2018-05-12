@@ -1,0 +1,27 @@
+-- Merging decision tree log ---
+manifest
+ADDED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml:2:1-7:12
+INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml:2:1-7:12
+INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml:2:1-7:12
+	package
+		ADDED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml:3:5-50
+		INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+		INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+	xmlns:android
+		ADDED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml:2:11-69
+application
+ADDED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml:5:5-19
+uses-sdk
+INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml reason: use-sdk injection requested
+INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+	android:targetSdkVersion
+		INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+		ADDED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+		INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+	android:minSdkVersion
+		INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+		ADDED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
+		INJECTED from D:\Projects\training\player_mp3\circularprogressbar\src\main\AndroidManifest.xml
