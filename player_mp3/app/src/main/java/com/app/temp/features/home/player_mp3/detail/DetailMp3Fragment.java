@@ -11,6 +11,7 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,6 +25,7 @@ import com.app.temp.base.fragment.BaseFragment;
 import com.app.temp.pojo.Mp3File;
 import com.lylc.widget.circularprogressbar.CircularProgressBar;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.TimeUnit;
 
@@ -32,8 +34,6 @@ import butterknife.BindView;
 public class DetailMp3Fragment extends BaseFragment {
 
     // UI
-    @BindView(R.id.tvContent)
-    TextView tvContent;
     @BindView(R.id.progressBar)
     ProgressBar progressBar;
     @BindView(R.id.tvTime)
@@ -48,12 +48,15 @@ public class DetailMp3Fragment extends BaseFragment {
     ImageView btnGoBack;
     @BindView(R.id.btnGoForward)
     ImageView btnGoForward;
-    @BindView(R.id.btnSave)
-    ImageView btnSave;
     @BindView(R.id.circularprogressbar)
     CircularProgressBar circularprogressbar;
+    @BindView(R.id.btn_next)
+    ImageView btnNext;
+    @BindView(R.id.btn_prev)
+    ImageView btnPrev;
 
-    private Mp3File mMp3File;
+    private List<Mp3File> mp3FileList;
+    private int mCurrentIndex;
     private Intent svc;
     private long mDuration;
     private long mCurrentPosition;
@@ -65,8 +68,9 @@ public class DetailMp3Fragment extends BaseFragment {
         return new DetailMp3Fragment();
     }
 
-    public DetailMp3Fragment setMp3File(Mp3File file) {
-        this.mMp3File = file;
+    public DetailMp3Fragment setMp3File(List<Mp3File> file, int index) {
+        this.mp3FileList = file;
+        this.mCurrentIndex = index;
         return this;
     }
 
@@ -94,6 +98,8 @@ public class DetailMp3Fragment extends BaseFragment {
         });
         btnGoBack.setOnClickListener(v -> goBack10Seconds());
         btnGoForward.setOnClickListener(v -> goForward10Seconds());
+        btnNext.setOnClickListener(v -> goNextMusic());
+        btnPrev.setOnClickListener(v -> goPrevMusic());
 
         // broadcast
         receiverDuration = new BroadcastReceiver() {
@@ -113,6 +119,8 @@ public class DetailMp3Fragment extends BaseFragment {
                 }
             }
         };
+
+        tvTitle.setText(mp3FileList.get(mCurrentIndex).getName());
     }
 
     @Override
@@ -166,10 +174,8 @@ public class DetailMp3Fragment extends BaseFragment {
         try {
             svc = new Intent(getActivity(), BackgroundSoundService.class);
             svc.setAction(Constant.ACTION_PLAY);
-            svc.putExtra("url", mMp3File.getPath());
+            svc.putExtra("url", mp3FileList.get(mCurrentIndex).getPath());
             Objects.requireNonNull(getActivity()).startService(svc);
-
-            btnSave.setEnabled(true);
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -190,6 +196,22 @@ public class DetailMp3Fragment extends BaseFragment {
         if ((mService.getCurrentPosition() + Constant.s_TIME_STEP) < mDuration) {
             mService.seekTo(mService.getCurrentPosition() + Constant.s_TIME_STEP);
             setProgressListen(mService.getCurrentPosition());
+        }
+    }
+
+    private void goNextMusic() {
+        if (mCurrentIndex < mp3FileList.size() - 1) {
+            mCurrentIndex += 1;
+            Log.d("goNextMusic", "mCurrentIndex = " + mCurrentIndex);
+            mService.changeUrl(mp3FileList.get(mCurrentIndex).getPath());
+        }
+    }
+
+    private void goPrevMusic() {
+        if (0 < mCurrentIndex) {
+            mCurrentIndex -= 1;
+            Log.d("goPrevMusic", "mCurrentIndex = " + mCurrentIndex);
+            mService.changeUrl(mp3FileList.get(mCurrentIndex).getPath());
         }
     }
 

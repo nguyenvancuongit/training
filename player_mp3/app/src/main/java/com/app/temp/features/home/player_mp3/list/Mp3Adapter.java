@@ -36,7 +36,7 @@ public class Mp3Adapter extends RecyclerView.Adapter<Mp3Adapter.ViewHolder> {
         holder.tvName.setText(mp3File.getName());
         holder.tvSize.setText(getFileSize(Integer.parseInt(String.valueOf(mp3File.length()))));
 
-        holder.itemView.setOnClickListener(v -> onItemSelected.selectItem(mp3File));
+        holder.itemView.setOnClickListener(v -> onItemSelected.selectItem(mApkFiles, position));
     }
 
     @Override
@@ -66,6 +66,6 @@ public class Mp3Adapter extends RecyclerView.Adapter<Mp3Adapter.ViewHolder> {
     }
 
     public interface OnItemSelected {
-        void selectItem(Mp3File file);
+        void selectItem(List<Mp3File> file, int index);
     }
 }

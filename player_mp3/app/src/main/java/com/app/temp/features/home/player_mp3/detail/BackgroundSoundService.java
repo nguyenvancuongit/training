@@ -79,6 +79,18 @@ public class BackgroundSoundService extends Service implements MediaPlayer.OnPre
         }
     }
 
+    public void changeUrl(String url) {
+        try {
+            if (mMediaPlayer != null) {
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(url);
+                mMediaPlayer.prepareAsync();
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
     @Nullable
     @Override
     public IBinder onBind(Intent intent) {

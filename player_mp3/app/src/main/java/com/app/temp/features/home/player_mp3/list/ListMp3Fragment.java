@@ -64,7 +64,7 @@ public class ListMp3Fragment extends BaseFragment {
             if (file.isDirectory()) {
                 a.addAll(mp3Reader(file));
             } else {
-                if (file.getName().toLowerCase().endsWith(".mp3")) {
+                if (file.length() > 0 && file.getName().toLowerCase().endsWith(".mp3")) {
                     a.add(new Mp3File(file.getPath()));
                 }
             }
@@ -78,7 +78,7 @@ public class ListMp3Fragment extends BaseFragment {
             RecyclerView.LayoutManager mLayoutManager = new LinearLayoutManager(getContext());
             rcList.setLayoutManager(mLayoutManager);
 
-            Mp3Adapter mAdapter = new Mp3Adapter(mp3Files, file -> ((HomeActivity) Objects.requireNonNull(getActivity())).transactionFragment(DetailMp3Fragment.newInstance().setMp3File(file)));
+            Mp3Adapter mAdapter = new Mp3Adapter(mp3Files, (files, index) -> ((HomeActivity) Objects.requireNonNull(getActivity())).transactionFragment(DetailMp3Fragment.newInstance().setMp3File(files, index)));
             rcList.setAdapter(mAdapter);
         }
     }
