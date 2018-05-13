@@ -11,13 +11,13 @@ import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.content.LocalBroadcastManager;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.app.temp.R;
 import com.app.temp.base.constant.Constant;
@@ -27,6 +27,7 @@ import com.lylc.widget.circularprogressbar.CircularProgressBar;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 import java.util.concurrent.TimeUnit;
 
 import butterknife.BindView;
@@ -54,6 +55,8 @@ public class DetailMp3Fragment extends BaseFragment {
     ImageView btnNext;
     @BindView(R.id.btn_prev)
     ImageView btnPrev;
+    @BindView(R.id.img_shuffle)
+    ImageView imgShuffle;
 
     private List<Mp3File> mp3FileList;
     private int mCurrentIndex;
@@ -62,7 +65,8 @@ public class DetailMp3Fragment extends BaseFragment {
     private long mCurrentPosition;
     private BroadcastReceiver receiverDuration;
     private BroadcastReceiver receiverPosition;
-    BackgroundSoundService mService;
+    private BackgroundSoundService mService;
+    private int mShuffleMode = Constant.FLAG_SHUFFLE_ALL_MUSIC;
 
     public static DetailMp3Fragment newInstance() {
         return new DetailMp3Fragment();
@@ -85,7 +89,7 @@ public class DetailMp3Fragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        LoadData();
+        loadData();
 
         // listener
         btnPlayPause.setOnClickListener(v -> {
@@ -98,8 +102,9 @@ public class DetailMp3Fragment extends BaseFragment {
         });
         btnGoBack.setOnClickListener(v -> goBack10Seconds());
         btnGoForward.setOnClickListener(v -> goForward10Seconds());
-        btnNext.setOnClickListener(v -> goNextMusic());
-        btnPrev.setOnClickListener(v -> goPrevMusic());
+        btnNext.setOnClickListener(v -> changeMusic(true));
+        btnPrev.setOnClickListener(v -> changeMusic(false));
+        imgShuffle.setOnClickListener(v -> changeShuffleMode());
 
         // broadcast
         receiverDuration = new BroadcastReceiver() {
@@ -169,7 +174,7 @@ public class DetailMp3Fragment extends BaseFragment {
         }
     };
 
-    public void LoadData() {
+    public void loadData() {
         // play audio
         try {
             svc = new Intent(getActivity(), BackgroundSoundService.class);
@@ -199,19 +204,43 @@ public class DetailMp3Fragment extends BaseFragment {
         }
     }
 
-    private void goNextMusic() {
-        if (mCurrentIndex < mp3FileList.size() - 1) {
-            mCurrentIndex += 1;
-            Log.d("goNextMusic", "mCurrentIndex = " + mCurrentIndex);
-            mService.changeUrl(mp3FileList.get(mCurrentIndex).getPath());
+    private void changeMusic(boolean isGoNext) {
+        switch (mShuffleMode) {
+            case Constant.FLAG_SHUFFLE_ALL_MUSIC:
+                if (isGoNext) {
+                    if (mCurrentIndex < mp3FileList.size() - 1) {
+                        mCurrentIndex += 1;
+                    }
+                } else {
+                    if (mCurrentIndex > 0) {
+                        mCurrentIndex -= 1;
+                    }
+                }
+                break;
+            case Constant.FLAG_SHUFFLE_ONE_MUSIC:
+                break;
+            case Constant.FLAG_SHUFFLE_RANDOM:
+                final int min = 0;
+                final int max = mp3FileList.size() - 1;
+                mCurrentIndex = new Random().nextInt((max - min) + 1) + min;
+                break;
         }
+
+        Toast.makeText(getContext(), "Playing music: " + mCurrentIndex, Toast.LENGTH_SHORT).show();
+        tvTitle.setText(mp3FileList.get(mCurrentIndex).getName());
+        mService.changeUrl(mp3FileList.get(mCurrentIndex).getPath());
     }
 
-    private void goPrevMusic() {
-        if (0 < mCurrentIndex) {
-            mCurrentIndex -= 1;
-            Log.d("goPrevMusic", "mCurrentIndex = " + mCurrentIndex);
-            mService.changeUrl(mp3FileList.get(mCurrentIndex).getPath());
+    private void changeShuffleMode() {
+        if (mShuffleMode == Constant.FLAG_SHUFFLE_ALL_MUSIC) {
+            mShuffleMode = Constant.FLAG_SHUFFLE_ONE_MUSIC;
+            Toast.makeText(getContext(), "Repeat the current music.", Toast.LENGTH_SHORT).show();
+        } else if (mShuffleMode == Constant.FLAG_SHUFFLE_ONE_MUSIC) {
+            mShuffleMode = Constant.FLAG_SHUFFLE_RANDOM;
+            Toast.makeText(getContext(), "Showing the random music.", Toast.LENGTH_SHORT).show();
+        } else if (mShuffleMode == Constant.FLAG_SHUFFLE_RANDOM) {
+            mShuffleMode = Constant.FLAG_SHUFFLE_ALL_MUSIC;
+            Toast.makeText(getContext(), "Repeat all of the music.", Toast.LENGTH_SHORT).show();
         }
     }
 

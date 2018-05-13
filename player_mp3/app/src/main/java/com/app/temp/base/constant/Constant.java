@@ -9,4 +9,8 @@ public class Constant {
     static final public String BIND_RESULT_DURATION = "BackgroundSoundService.REQUEST_DURATION";
     static final public String BIND_RESULT_POSITION = "BackgroundSoundService.REQUEST_POSITION";
     static final public String BLIND_MESSAGE = "BackgroundSoundService.COPA_MSG";
+
+    public static final int FLAG_SHUFFLE_ALL_MUSIC = 0;
+    public static final int FLAG_SHUFFLE_ONE_MUSIC = 1;
+    public static final int FLAG_SHUFFLE_RANDOM = 2;
 }

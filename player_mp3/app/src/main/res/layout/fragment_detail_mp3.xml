@@ -15,6 +15,13 @@
             android:layout_margin="32dp"
             android:scaleType="centerCrop"
             android:src="@drawable/blog_detail_bg" />
+
+        <ImageView
+            android:id="@+id/img_shuffle"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_centerInParent="true"
+            circular:srcCompat="@drawable/img_shuffle" />
     </RelativeLayout>
 
     <LinearLayout
