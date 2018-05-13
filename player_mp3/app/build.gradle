@@ -119,4 +119,7 @@ dependencies {
     /*rounded image*/
     implementation 'com.makeramen:roundedimageview:2.2.0'
     implementation project(':circularprogressbar')
+
+    /*push notification*/
+    implementation "com.android.support:support-compat:27.1.1"
 }

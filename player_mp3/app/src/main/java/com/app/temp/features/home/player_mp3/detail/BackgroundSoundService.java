@@ -20,9 +20,9 @@ import java.util.TimerTask;
  */
 public class BackgroundSoundService extends Service implements MediaPlayer.OnPreparedListener {
 
-    MediaPlayer mMediaPlayer = null;
+    private MediaPlayer mMediaPlayer = null;
     private LocalBroadcastManager broadcaster;
-    Timer timer;
+    private Timer timer;
     private final IBinder mBinder = new LocalBinder();
 
     public BackgroundSoundService() {

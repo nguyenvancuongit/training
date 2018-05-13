@@ -10,6 +10,8 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -131,9 +133,7 @@ public class DetailMp3Fragment extends BaseFragment {
     @Override
     public void onDestroy() {
         super.onDestroy();
-        if (svc != null) {
-            Objects.requireNonNull(getActivity()).stopService(svc);
-        }
+        showNotification(mp3FileList.get(mCurrentIndex).getName());
     }
 
     @Override
@@ -181,6 +181,8 @@ public class DetailMp3Fragment extends BaseFragment {
             svc.setAction(Constant.ACTION_PLAY);
             svc.putExtra("url", mp3FileList.get(mCurrentIndex).getPath());
             Objects.requireNonNull(getActivity()).startService(svc);
+
+            showNotification(mp3FileList.get(mCurrentIndex).getName());
         } catch (Exception e) {
             e.printStackTrace();
         }
@@ -227,7 +229,9 @@ public class DetailMp3Fragment extends BaseFragment {
         }
 
         Toast.makeText(getContext(), "Playing music: " + mCurrentIndex, Toast.LENGTH_SHORT).show();
+        showNotification(mp3FileList.get(mCurrentIndex).getName());
         tvTitle.setText(mp3FileList.get(mCurrentIndex).getName());
+
         mService.changeUrl(mp3FileList.get(mCurrentIndex).getPath());
     }
 
@@ -256,5 +260,14 @@ public class DetailMp3Fragment extends BaseFragment {
                 TimeUnit.MILLISECONDS.toSeconds(millis) -
                         TimeUnit.MINUTES.toSeconds(TimeUnit.MILLISECONDS.toMinutes(millis))
         );
+    }
+
+    private void showNotification(String title) {
+        NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(Objects.requireNonNull(getActivity()), Constant.PUSH_CHANNEL_ID)
+                .setSmallIcon(R.drawable.img_mp3)
+                .setContentTitle(title)
+                .setPriority(NotificationCompat.PRIORITY_DEFAULT);
+        NotificationManagerCompat notificationManager = NotificationManagerCompat.from(getActivity());
+        notificationManager.notify(0, mBuilder.build());
     }
 }
