@@ -20,8 +20,8 @@ public class RepositoriesResponse {
         this.repositories = repositories;
     }
 
-    public void add(Repository repository){
-        if(repositories == null){
+    public void add(Repository repository) {
+        if (repositories == null) {
             repositories = new LinkedList<>();
         }
         repositories.add(repository);

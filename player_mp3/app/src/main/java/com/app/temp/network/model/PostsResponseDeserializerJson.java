@@ -22,7 +22,7 @@ public class PostsResponseDeserializerJson implements JsonDeserializer<PostsResp
         PostsResponse postsResponse = new PostsResponse();
         JsonArray jsonArray = je.getAsJsonArray();
         Gson gson = new Gson();
-        for(JsonElement element : jsonArray){
+        for (JsonElement element : jsonArray) {
             Post post = gson.fromJson(element.getAsJsonObject(), Post.class);
             postsResponse.add(post);
         }

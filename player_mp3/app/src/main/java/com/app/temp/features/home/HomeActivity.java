@@ -1,6 +1,7 @@
 package com.app.temp.features.home;
 
 import android.Manifest;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
@@ -13,13 +14,15 @@ import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
 import android.widget.ListView;
 
+import com.app.temp.MyApplication;
 import com.app.temp.R;
 import com.app.temp.base.activity.BaseActivity;
 import com.app.temp.base.adapter.MenuAdapter;
+import com.app.temp.features.home.player_mp3.detail.BackgroundSoundService;
 import com.app.temp.features.home.player_mp3.list.ListMp3Fragment;
 import com.app.temp.features.home.repolist.RepoListFragment;
-import com.app.temp.views.ToolbarView;
 import com.app.temp.features.register.RegisterFragment;
+import com.app.temp.views.ToolbarView;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -202,5 +205,22 @@ public class HomeActivity extends BaseActivity {
         Intent intent = new Intent(this, HomeActivity.class);
         this.startActivity(intent);
         this.finishAffinity();
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+
+        // Bind to BackgroundSoundService
+        Intent intent = new Intent(this, BackgroundSoundService.class);
+        this.bindService(intent, ((MyApplication) getApplication()).getConnection(), Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        // Unbind to BackgroundSoundService
+        this.unbindService(((MyApplication) getApplication()).getConnection());
     }
 }
