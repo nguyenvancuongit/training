@@ -2,26 +2,18 @@ package com.app.temp.features.home.imagelist;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
 
 import com.app.temp.R;
 import com.app.temp.base.fragment.BaseFragment;
-import com.bumptech.glide.Glide;
-import com.bumptech.glide.load.DataSource;
-import com.bumptech.glide.load.engine.GlideException;
-import com.bumptech.glide.request.RequestListener;
-import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
@@ -63,11 +55,7 @@ public class PhotoListFragment extends BaseFragment {
         mAllPhotoWithFace = new ArrayList<>();
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), numberOfColumns));
-        adapter = new PhotoRecyclerViewAdapter(getContext(), mAllPhotoWithFace, position -> {
-            if (position == 0) {
-                goToNextFile();
-            }
-        });
+        adapter = new PhotoRecyclerViewAdapter(getContext(), mAllPhotoWithFace);
         recyclerView.setAdapter(adapter);
 
         if (isExternalStorageReadable()) {
@@ -122,7 +110,6 @@ public class PhotoListFragment extends BaseFragment {
     }
 
     public void checkContainFaceImageOnList() {
-        Log.d("PhotoListFragment", "***** Checking face for image === " + indexAllPhotoOnDevice + " path = " + mAllPhotoOnDevice.get(indexAllPhotoOnDevice).getPath());
         Observable<Boolean> observable = Observable.create(emitter -> {
             try {
                 // get bitmap from file Path
@@ -135,10 +122,9 @@ public class PhotoListFragment extends BaseFragment {
                 bitmap.recycle();
 
                 // finish
-                Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
-                    emitter.onNext(isContainFace);
-                    emitter.onComplete();
-                });
+                emitter.onNext(isContainFace);
+                emitter.onComplete();
+
             } catch (Exception e) {
                 emitter.onError(e);
             }
@@ -146,9 +132,12 @@ public class PhotoListFragment extends BaseFragment {
 
         disposable = observable.subscribe(isContainFace -> {
             if (isContainFace) {
-                Log.d("PhotoListFragment", "***** Face is detected === " + indexAllPhotoOnDevice + " path = " + mAllPhotoOnDevice.get(indexAllPhotoOnDevice).getPath());
-                adapter.addData(mAllPhotoOnDevice.get(indexAllPhotoOnDevice));
-                recyclerView.requestLayout();
+                Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
+                    adapter.addData(mAllPhotoOnDevice.get(indexAllPhotoOnDevice));
+                    recyclerView.requestLayout();
+
+                    goToNextFile();
+                });
             } else {
                 goToNextFile();
             }
@@ -158,7 +147,7 @@ public class PhotoListFragment extends BaseFragment {
     private void goToNextFile() {
         if (indexAllPhotoOnDevice < mAllPhotoOnDevice.size() - 1) {
             indexAllPhotoOnDevice++;
-            checkContainFaceImageOnList();
+            new Thread(this::checkContainFaceImageOnList).start();
         }
     }
 }
