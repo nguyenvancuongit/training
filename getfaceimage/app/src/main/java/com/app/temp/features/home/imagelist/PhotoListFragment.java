@@ -24,6 +24,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import butterknife.BindView;
+import io.reactivex.Observable;
 
 public class PhotoListFragment extends BaseFragment {
 
@@ -32,6 +33,7 @@ public class PhotoListFragment extends BaseFragment {
 
     private PhotoRecyclerViewAdapter adapter;
 
+    private ArrayList<File> mAllPhotoWithFace;
     private ArrayList<File> mAllPhotoOnDevice;
     private int numberOfColumns = 3;
     private int index = 0;
@@ -51,7 +53,7 @@ public class PhotoListFragment extends BaseFragment {
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        ArrayList<File> mAllPhotoWithFace = new ArrayList<>();
+        mAllPhotoWithFace = new ArrayList<>();
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), numberOfColumns));
         adapter = new PhotoRecyclerViewAdapter(getContext(), mAllPhotoWithFace);
@@ -97,10 +99,6 @@ public class PhotoListFragment extends BaseFragment {
 
         FaceDetector detector = new FaceDetector.Builder(getContext())
                 .setProminentFaceOnly(true)
-//                .setTrackingEnabled(false)
-//                .setLandmarkType(FaceDetector.ALL_LANDMARKS)
-//                .setMinFaceSize(0.3f)
-                .setMode(FaceDetector.ACCURATE_MODE)
                 .build();
 
         if (!detector.isOperational()) {
@@ -116,31 +114,38 @@ public class PhotoListFragment extends BaseFragment {
 
     public void checkContainFaceImageOnList() {
         Log.d("PhotoListFragment", "***** Checking face for image === " + index + " path = " + mAllPhotoOnDevice.get(index).getPath());
-        try {
-            // get bitmap from file Path
-            BitmapFactory.Options options = new BitmapFactory.Options();
-            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-            Bitmap bitmap = BitmapFactory.decodeFile(mAllPhotoOnDevice.get(index).getPath(), options);
+        Observable<Boolean> observable = Observable.create(emitter -> {
+            try {
+                // get bitmap from file Path
+                BitmapFactory.Options options = new BitmapFactory.Options();
+                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+                Bitmap bitmap = BitmapFactory.decodeFile(mAllPhotoOnDevice.get(index).getPath(), options);
 
-            // is there a face ?
-            boolean isContainFace = isContainFace(bitmap);
-            bitmap.recycle();
+                // is there a face ?
+                boolean isContainFace = isContainFace(bitmap);
+                bitmap.recycle();
 
-            // finish
-            if (isContainFace) {
+                // finish
                 Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
+                    emitter.onNext(isContainFace);
+                    emitter.onComplete();
+                });
+            } catch (Exception e) {
+                emitter.onError(e);
+            }
+        });
+
+        disposable = observable.subscribe(isContainFace -> {
+            if (isContainFace) {
                     Log.d("PhotoListFragment", "***** Face is detected === " + index + " path = " + mAllPhotoOnDevice.get(index).getPath());
                     adapter.addData(mAllPhotoOnDevice.get(index));
                     recyclerView.requestLayout();
-                });
             }
 
-            if (index < mAllPhotoOnDevice.size() - 1) {
+            if (index < /*mAllPhotoOnDevice.size() - 1*/ 200) {
                 index++;
                 checkContainFaceImageOnList();
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        });
     }
 }
