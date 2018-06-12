@@ -14,6 +14,7 @@ import com.bumptech.glide.Glide;
 import com.bumptech.glide.load.DataSource;
 import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.RequestOptions;
 import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.actions.ItemListIntents;
 
@@ -48,6 +49,7 @@ public class PhotoRecyclerViewAdapter extends RecyclerView.Adapter<PhotoRecycler
         File file = mData.get(position);
 
         Glide.with(mContext)
+                .setDefaultRequestOptions(new RequestOptions().placeholder(R.drawable.loading))
                 .load(file)
                 .listener(new RequestListener<Drawable>() {
                     @Override

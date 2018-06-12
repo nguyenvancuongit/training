@@ -2,6 +2,7 @@ package com.app.temp.features.home.imagelist;
 
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.drawable.Drawable;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -12,9 +13,15 @@ import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 
 import com.app.temp.R;
 import com.app.temp.base.fragment.BaseFragment;
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.load.DataSource;
+import com.bumptech.glide.load.engine.GlideException;
+import com.bumptech.glide.request.RequestListener;
+import com.bumptech.glide.request.target.Target;
 import com.google.android.gms.vision.Frame;
 import com.google.android.gms.vision.face.Face;
 import com.google.android.gms.vision.face.FaceDetector;
@@ -35,7 +42,7 @@ public class PhotoListFragment extends BaseFragment {
 
     private ArrayList<File> mAllPhotoWithFace;
     private ArrayList<File> mAllPhotoOnDevice;
-    private int numberOfColumns = 3;
+    private int numberOfColumns = 4;
     private int indexAllPhotoOnDevice = 0;
 
     public static PhotoListFragment newInstance() {
@@ -64,7 +71,7 @@ public class PhotoListFragment extends BaseFragment {
         recyclerView.setAdapter(adapter);
 
         if (isExternalStorageReadable()) {
-            mAllPhotoOnDevice = imageReader(Environment.getExternalStorageDirectory());
+            mAllPhotoOnDevice = imageReader(new File(Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/"));
 
             new Thread(this::checkContainFaceImageOnList).start();
         }
@@ -81,8 +88,6 @@ public class PhotoListFragment extends BaseFragment {
                 if (file.getName().toLowerCase().endsWith(".jpg")
                         || file.getName().toLowerCase().endsWith(".jpeg")
                         || file.getName().toLowerCase().endsWith(".png")
-                        || file.getName().toLowerCase().endsWith(".bmp")
-                        || file.getName().toLowerCase().endsWith(".svg")
                         ) {
                     a.add(file);
                 }
