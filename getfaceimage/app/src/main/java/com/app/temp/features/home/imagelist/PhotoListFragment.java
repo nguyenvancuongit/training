@@ -36,7 +36,7 @@ public class PhotoListFragment extends BaseFragment {
     private ArrayList<File> mAllPhotoWithFace;
     private ArrayList<File> mAllPhotoOnDevice;
     private int numberOfColumns = 3;
-    private int index = 0;
+    private int indexAllPhotoOnDevice = 0;
 
     public static PhotoListFragment newInstance() {
         return new PhotoListFragment();
@@ -56,7 +56,11 @@ public class PhotoListFragment extends BaseFragment {
         mAllPhotoWithFace = new ArrayList<>();
 
         recyclerView.setLayoutManager(new GridLayoutManager(getContext(), numberOfColumns));
-        adapter = new PhotoRecyclerViewAdapter(getContext(), mAllPhotoWithFace);
+        adapter = new PhotoRecyclerViewAdapter(getContext(), mAllPhotoWithFace, position -> {
+            if (position == 0) {
+                goToNextFile();
+            }
+        });
         recyclerView.setAdapter(adapter);
 
         if (isExternalStorageReadable()) {
@@ -113,13 +117,13 @@ public class PhotoListFragment extends BaseFragment {
     }
 
     public void checkContainFaceImageOnList() {
-        Log.d("PhotoListFragment", "***** Checking face for image === " + index + " path = " + mAllPhotoOnDevice.get(index).getPath());
+        Log.d("PhotoListFragment", "***** Checking face for image === " + indexAllPhotoOnDevice + " path = " + mAllPhotoOnDevice.get(indexAllPhotoOnDevice).getPath());
         Observable<Boolean> observable = Observable.create(emitter -> {
             try {
                 // get bitmap from file Path
                 BitmapFactory.Options options = new BitmapFactory.Options();
                 options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                Bitmap bitmap = BitmapFactory.decodeFile(mAllPhotoOnDevice.get(index).getPath(), options);
+                Bitmap bitmap = BitmapFactory.decodeFile(mAllPhotoOnDevice.get(indexAllPhotoOnDevice).getPath(), options);
 
                 // is there a face ?
                 boolean isContainFace = isContainFace(bitmap);
@@ -137,15 +141,19 @@ public class PhotoListFragment extends BaseFragment {
 
         disposable = observable.subscribe(isContainFace -> {
             if (isContainFace) {
-                    Log.d("PhotoListFragment", "***** Face is detected === " + index + " path = " + mAllPhotoOnDevice.get(index).getPath());
-                    adapter.addData(mAllPhotoOnDevice.get(index));
-                    recyclerView.requestLayout();
-            }
-
-            if (index < /*mAllPhotoOnDevice.size() - 1*/ 200) {
-                index++;
-                checkContainFaceImageOnList();
+                Log.d("PhotoListFragment", "***** Face is detected === " + indexAllPhotoOnDevice + " path = " + mAllPhotoOnDevice.get(indexAllPhotoOnDevice).getPath());
+                adapter.addData(mAllPhotoOnDevice.get(indexAllPhotoOnDevice));
+                recyclerView.requestLayout();
+            } else {
+                goToNextFile();
             }
         });
+    }
+
+    private void goToNextFile() {
+        if (indexAllPhotoOnDevice < mAllPhotoOnDevice.size() - 1) {
+            indexAllPhotoOnDevice++;
+            checkContainFaceImageOnList();
+        }
     }
 }
