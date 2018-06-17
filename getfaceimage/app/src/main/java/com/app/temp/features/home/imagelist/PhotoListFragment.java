@@ -1,12 +1,15 @@
 package com.app.temp.features.home.imagelist;
 
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.MediaStore;
 import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -59,13 +62,36 @@ public class PhotoListFragment extends BaseFragment {
         recyclerView.setAdapter(adapter);
 
         if (isExternalStorageReadable()) {
-            mAllPhotoOnDevice = imageReader(new File(Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/"));
-
+//            mAllPhotoOnDevice = imageReader(new File(Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/"));
+            mAllPhotoOnDevice = getPhotoFromGallery();
+            Log.d("PhotoFragment", "mAllPhotoOnDevice = " + mAllPhotoOnDevice.size());
             new Thread(this::checkContainFaceImageOnList).start();
         }
     }
 
+    private ArrayList<File> getPhotoFromGallery() {
+        long time = System.currentTimeMillis();
+        String[] columns = {
+                MediaStore.Images.ImageColumns.TITLE,
+                MediaStore.Images.ImageColumns.DATA,
+                MediaStore.Images.ImageColumns.DATE_ADDED
+        };
+        ArrayList<File> files = new ArrayList<>();
+        Cursor cursor = getActivity().getContentResolver().query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, columns, null, null, null);
+        if (cursor != null && cursor.moveToFirst()) {
+            do {
+                File newFile = new File(cursor.getString(1));
+                files.add(new File(newFile.getPath()));
+//                Log.d("PhotoFragment", "getPhotoFromGallery = " + newFile.getPath());
+            } while (cursor.moveToNext());
+        }
+
+        Log.d("PhotoFragment", "getPhotoFromGallery time spend = " + (System.currentTimeMillis() - time));
+        return files;
+    }
+
     ArrayList<File> imageReader(File root) {
+        long time = System.currentTimeMillis();
         ArrayList<File> a = new ArrayList<>();
 
         File[] files = root.listFiles();
@@ -81,6 +107,8 @@ public class PhotoListFragment extends BaseFragment {
                 }
             }
         }
+
+        Log.d("PhotoFragment", "imageReader time spend = " + (System.currentTimeMillis() - time));
         return a;
     }
 
@@ -95,7 +123,7 @@ public class PhotoListFragment extends BaseFragment {
         SparseArray<Face> mFaces = new SparseArray<>();
 
         FaceDetector detector = new FaceDetector.Builder(getContext())
-                .setProminentFaceOnly(true)
+//                .setProminentFaceOnly(true)
                 .build();
 
         if (!detector.isOperational()) {
@@ -110,6 +138,7 @@ public class PhotoListFragment extends BaseFragment {
     }
 
     public void checkContainFaceImageOnList() {
+        Log.d("PhotoFragment", "checkContainFaceImageOnList = " + indexAllPhotoOnDevice);
         Observable<Boolean> observable = Observable.create(emitter -> {
             try {
                 // get bitmap from file Path
@@ -132,6 +161,7 @@ public class PhotoListFragment extends BaseFragment {
 
         disposable = observable.subscribe(isContainFace -> {
             if (isContainFace) {
+                Log.d("PhotoFragment", "isContainFace = " + indexAllPhotoOnDevice);
                 Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
                     adapter.addData(mAllPhotoOnDevice.get(indexAllPhotoOnDevice));
                     recyclerView.requestLayout();
