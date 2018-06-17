@@ -1,8 +1,6 @@
 package com.app.temp.features.home.imagelist;
 
 import android.database.Cursor;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
@@ -10,25 +8,21 @@ import android.support.annotation.Nullable;
 import android.support.v7.widget.GridLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
 import com.app.temp.R;
 import com.app.temp.base.fragment.BaseFragment;
-import com.google.android.gms.vision.Frame;
-import com.google.android.gms.vision.face.Face;
-import com.google.android.gms.vision.face.FaceDetector;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.Objects;
 
 import butterknife.BindView;
-import io.reactivex.Observable;
 
 public class PhotoListFragment extends BaseFragment {
+
+    public static final int NUMBER_OF_IMAGE_ON_ONE_THREAD = 100;
 
     @BindView(R.id.rvNumbers)
     RecyclerView recyclerView;
@@ -38,7 +32,8 @@ public class PhotoListFragment extends BaseFragment {
     private ArrayList<File> mAllPhotoWithFace;
     private ArrayList<File> mAllPhotoOnDevice;
     private int numberOfColumns = 4;
-    private int indexAllPhotoOnDevice = 0;
+
+    private ArrayList<MyThread> myThreads;
 
     public static PhotoListFragment newInstance() {
         return new PhotoListFragment();
@@ -65,8 +60,29 @@ public class PhotoListFragment extends BaseFragment {
 //            mAllPhotoOnDevice = imageReader(new File(Environment.getExternalStorageDirectory() + "/" + Environment.DIRECTORY_DCIM + "/"));
             mAllPhotoOnDevice = getPhotoFromGallery();
             Log.d("PhotoFragment", "mAllPhotoOnDevice = " + mAllPhotoOnDevice.size());
-            new Thread(this::checkContainFaceImageOnList).start();
+
+            int numberOfThreads = calculateNumberOfThreadIsNeeded(mAllPhotoOnDevice.size());
+            Log.d("PhotoFragment", "numberOfThreads = " + numberOfThreads);
+
+            myThreads = new ArrayList<>();
+            for (int i = 0; i < numberOfThreads; i++) {
+                myThreads.add(new MyThread(getContext(),
+                        "Thread number = " + i,
+                        mAllPhotoOnDevice,
+                        i * NUMBER_OF_IMAGE_ON_ONE_THREAD,
+                        file -> {
+                            adapter.addData(file);
+                            recyclerView.requestLayout();
+                        }));
+            }
+            for (int i = 0; i < numberOfThreads; i++) {
+                myThreads.get(i).getThread().start();
+            }
         }
+    }
+
+    private int calculateNumberOfThreadIsNeeded(int size) {
+        return size % NUMBER_OF_IMAGE_ON_ONE_THREAD == 0 ? size / NUMBER_OF_IMAGE_ON_ONE_THREAD : size / NUMBER_OF_IMAGE_ON_ONE_THREAD + 1;
     }
 
     private ArrayList<File> getPhotoFromGallery() {
@@ -117,67 +133,5 @@ public class PhotoListFragment extends BaseFragment {
         String state = Environment.getExternalStorageState();
         return Environment.MEDIA_MOUNTED.equals(state) ||
                 Environment.MEDIA_MOUNTED_READ_ONLY.equals(state);
-    }
-
-    public boolean isContainFace(Bitmap bitmap) {
-        SparseArray<Face> mFaces = new SparseArray<>();
-
-        FaceDetector detector = new FaceDetector.Builder(getContext())
-//                .setProminentFaceOnly(true)
-                .build();
-
-        if (!detector.isOperational()) {
-            //Handle contingency
-        } else {
-            Frame frame = new Frame.Builder().setBitmap(bitmap).build();
-            mFaces = detector.detect(frame);
-            detector.release();
-        }
-
-        return (mFaces != null && mFaces.size() > 0);
-    }
-
-    public void checkContainFaceImageOnList() {
-        Log.d("PhotoFragment", "checkContainFaceImageOnList = " + indexAllPhotoOnDevice);
-        Observable<Boolean> observable = Observable.create(emitter -> {
-            try {
-                // get bitmap from file Path
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
-                Bitmap bitmap = BitmapFactory.decodeFile(mAllPhotoOnDevice.get(indexAllPhotoOnDevice).getPath(), options);
-
-                // is there a face ?
-                boolean isContainFace = isContainFace(bitmap);
-                bitmap.recycle();
-
-                // finish
-                emitter.onNext(isContainFace);
-                emitter.onComplete();
-
-            } catch (Exception e) {
-                emitter.onError(e);
-            }
-        });
-
-        disposable = observable.subscribe(isContainFace -> {
-            if (isContainFace) {
-                Log.d("PhotoFragment", "isContainFace = " + indexAllPhotoOnDevice);
-                Objects.requireNonNull(getActivity()).runOnUiThread(() -> {
-                    adapter.addData(mAllPhotoOnDevice.get(indexAllPhotoOnDevice));
-                    recyclerView.requestLayout();
-
-                    goToNextFile();
-                });
-            } else {
-                goToNextFile();
-            }
-        });
-    }
-
-    private void goToNextFile() {
-        if (indexAllPhotoOnDevice < mAllPhotoOnDevice.size() - 1) {
-            indexAllPhotoOnDevice++;
-            new Thread(this::checkContainFaceImageOnList).start();
-        }
     }
 }
