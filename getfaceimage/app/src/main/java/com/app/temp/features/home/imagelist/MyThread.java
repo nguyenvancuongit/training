@@ -15,7 +15,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 
 public class MyThread {
@@ -27,11 +26,15 @@ public class MyThread {
 
     private ArrayList<File> allPhotoOnDevice;
     private int numberAtStarting;
+    private int numberAtEnding;
     private int currentIndex;
+
+    private Disposable disposable;
 
     private OnAddNewFaceImage onAddNewFaceImage;
 
-    public MyThread(Context context, String threadName, ArrayList<File> allPhotoWithFace, int starting, OnAddNewFaceImage onAddNewFaceImage) {
+    public MyThread(Context context, String threadName, ArrayList<File> allPhotoWithFace, int starting, int ending,
+                    OnAddNewFaceImage onAddNewFaceImage) {
         this.context = context;
         this.threadName = threadName;
         this.runnable = this::checkContainFaceImageOnList;
@@ -39,14 +42,16 @@ public class MyThread {
 
         this.allPhotoOnDevice = allPhotoWithFace;
         this.numberAtStarting = starting;
+        this.numberAtEnding = ending;
         this.currentIndex = numberAtStarting;
 
         this.onAddNewFaceImage = onAddNewFaceImage;
 
-//        Log.d("MyThread", "threadName = " + threadName + "\n"
-//                + "numberAtStarting = " + numberAtStarting + "\n"
-//                + "currentIndex = " + currentIndex
-//        );
+        Log.d("PhotoFragment", "threadName = " + threadName + "\n"
+                + "numberAtStarting = " + numberAtStarting + "\n"
+                + "numberAtEnding = " + numberAtEnding + "\n"
+                + "currentIndex = " + currentIndex
+        );
     }
 
     public String getThreadName() {
@@ -63,6 +68,14 @@ public class MyThread {
 
     public void setNumberAtStarting(int numberAtStarting) {
         this.numberAtStarting = numberAtStarting;
+    }
+
+    public int getNumberAtEnding() {
+        return numberAtEnding;
+    }
+
+    public void setNumberAtEnding(int numberAtEnding) {
+        this.numberAtEnding = numberAtEnding;
     }
 
     public int getCurrentIndex() {
@@ -93,7 +106,7 @@ public class MyThread {
         SparseArray<Face> mFaces = new SparseArray<>();
 
         FaceDetector detector = new FaceDetector.Builder(context)
-                .setProminentFaceOnly(true)
+//                .setProminentFaceOnly(true)
                 .build();
 
         if (!detector.isOperational()) {
@@ -108,57 +121,50 @@ public class MyThread {
     }
 
     private void checkContainFaceImageOnList() {
-//        Log.d("MyThread", getThreadName() + ", checkContainFaceImageOnList = " + currentIndex);
-        Observable<Boolean> observable = Observable.create(emitter -> {
-            try {
-                // get bitmap from file Path
-                BitmapFactory.Options options = new BitmapFactory.Options();
-                options.inPreferredConfig = Bitmap.Config.ARGB_8888;
+        Log.d("PhotoFragment", getThreadName() + ", checkContainFaceImageOnList = " + currentIndex);
+        try {
+            // get bitmap from file Path
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inPreferredConfig = Bitmap.Config.ARGB_8888;
 
-                // First decode with inJustDecodeBounds=true to check dimensions
-                options.inJustDecodeBounds = true;
-                BitmapFactory.decodeFile(allPhotoOnDevice.get(currentIndex).getPath(), options);
+            // First decode with inJustDecodeBounds=true to check dimensions
+            options.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(allPhotoOnDevice.get(currentIndex).getPath(), options);
 
-                // Calculate inSampleSize
-                options.inSampleSize = calculateInSampleSize(options, 512, 384);
+            // Calculate inSampleSize
+            options.inSampleSize = calculateInSampleSize(options, 512, 384);
 
-                // Decode bitmap with inSampleSize set
-                options.inJustDecodeBounds = false;
-                Bitmap bitmap = BitmapFactory.decodeFile(allPhotoOnDevice.get(currentIndex).getPath(), options);
+            // Decode bitmap with inSampleSize set
+            options.inJustDecodeBounds = false;
+            Bitmap bitmap = BitmapFactory.decodeFile(allPhotoOnDevice.get(currentIndex).getPath(), options);
 
-                // is there a face ?
-                boolean isContainFace = isContainFace(bitmap);
-                bitmap.recycle();
+            // is there a face ?
+            boolean isContainFace = isContainFace(bitmap);
+            bitmap.recycle();
 
-                // finish
-                emitter.onNext(isContainFace);
-                emitter.onComplete();
-
-            } catch (Exception e) {
-                emitter.onError(e);
-            }
-        });
-
-        Disposable disposable = observable.subscribe(isContainFace -> {
             if (isContainFace) {
-                Log.d("MyThread", getThreadName() + ", isContainFace 11111 = " + currentIndex);
                 int finalIndex = currentIndex;
                 Objects.requireNonNull((Activity) context).runOnUiThread(() -> {
-                    Log.d("MyThread", getThreadName() + ", isContainFace 22222 = " + finalIndex);
                     onAddNewFaceImage.addNewFaceImage(allPhotoOnDevice.get(finalIndex));
                 });
                 goToNextFile();
             } else {
                 goToNextFile();
             }
-        });
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void goToNextFile() {
-        if (currentIndex < numberAtStarting + PhotoListFragment.NUMBER_OF_IMAGE_ON_ONE_THREAD - 1
+        if (currentIndex < numberAtEnding
                 && currentIndex < allPhotoOnDevice.size() - 1) {
             currentIndex++;
             checkContainFaceImageOnList();
+        } else {
+            if (!disposable.isDisposed()) {
+                disposable.dispose();
+            }
         }
     }
 

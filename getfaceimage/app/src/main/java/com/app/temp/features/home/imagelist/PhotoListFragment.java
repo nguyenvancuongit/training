@@ -22,7 +22,7 @@ import butterknife.BindView;
 
 public class PhotoListFragment extends BaseFragment {
 
-    public static final int NUMBER_OF_IMAGE_ON_ONE_THREAD = 100;
+    public static final int NUMBER_OF_THREADS = 5;
 
     @BindView(R.id.rvNumbers)
     RecyclerView recyclerView;
@@ -61,28 +61,25 @@ public class PhotoListFragment extends BaseFragment {
             mAllPhotoOnDevice = getPhotoFromGallery();
             Log.d("PhotoFragment", "mAllPhotoOnDevice = " + mAllPhotoOnDevice.size());
 
-            int numberOfThreads = calculateNumberOfThreadIsNeeded(mAllPhotoOnDevice.size());
-            Log.d("PhotoFragment", "numberOfThreads = " + numberOfThreads);
+            int pointStarting = mAllPhotoOnDevice.size() / NUMBER_OF_THREADS;
+            Log.d("PhotoFragment", "pointStarting = " + pointStarting);
 
             myThreads = new ArrayList<>();
-            for (int i = 0; i < numberOfThreads; i++) {
+            for (int i = 0; i < NUMBER_OF_THREADS; i++) {
                 myThreads.add(new MyThread(getContext(),
                         "Thread number = " + i,
                         mAllPhotoOnDevice,
-                        i * NUMBER_OF_IMAGE_ON_ONE_THREAD,
+                        i * pointStarting,
+                        ((i + 1) * pointStarting) - 1,
                         file -> {
                             adapter.addData(file);
                             recyclerView.requestLayout();
                         }));
             }
-            for (int i = 0; i < numberOfThreads; i++) {
+            for (int i = 0; i < NUMBER_OF_THREADS; i++) {
                 myThreads.get(i).getThread().start();
             }
         }
-    }
-
-    private int calculateNumberOfThreadIsNeeded(int size) {
-        return size % NUMBER_OF_IMAGE_ON_ONE_THREAD == 0 ? size / NUMBER_OF_IMAGE_ON_ONE_THREAD : size / NUMBER_OF_IMAGE_ON_ONE_THREAD + 1;
     }
 
     private ArrayList<File> getPhotoFromGallery() {
