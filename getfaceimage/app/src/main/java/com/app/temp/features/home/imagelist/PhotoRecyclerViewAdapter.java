@@ -1,6 +1,7 @@
 package com.app.temp.features.home.imagelist;
 
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -27,15 +28,16 @@ public class PhotoRecyclerViewAdapter extends RecyclerView.Adapter<PhotoRecycler
     }
 
     // inflates the cell layout from xml when needed
+    @NonNull
     @Override
-    public ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
+    public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         View view = mInflater.inflate(R.layout.recyclerview_item, parent, false);
         return new ViewHolder(view);
     }
 
     // binds the data to the image view in each cell
     @Override
-    public void onBindViewHolder(ViewHolder holder, int position) {
+    public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
         File file = mData.get(position);
 
         Glide.with(mContext)
@@ -50,12 +52,7 @@ public class PhotoRecyclerViewAdapter extends RecyclerView.Adapter<PhotoRecycler
     }
 
     public void addData(File file) {
-        mData.add(0, file);
-        notifyDataSetChanged();
-    }
-
-    public void addData(ArrayList<File> files) {
-        mData.addAll(files);
+        mData.add(file);
         notifyDataSetChanged();
     }
 

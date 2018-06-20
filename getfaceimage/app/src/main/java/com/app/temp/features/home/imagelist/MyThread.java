@@ -15,8 +15,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.Objects;
 
-import io.reactivex.disposables.Disposable;
-
 public class MyThread {
 
     private Context context;
@@ -28,8 +26,6 @@ public class MyThread {
     private int numberAtStarting;
     private int numberAtEnding;
     private int currentIndex;
-
-    private Disposable disposable;
 
     private OnAddNewFaceImage onAddNewFaceImage;
 
@@ -105,9 +101,12 @@ public class MyThread {
     private boolean isContainFace(Bitmap bitmap) {
         SparseArray<Face> mFaces = new SparseArray<>();
 
-        FaceDetector detector = new FaceDetector.Builder(context)
-//                .setProminentFaceOnly(true)
-                .build();
+        FaceDetector detector;
+        if (PhotoListFragment.isGetFeaturePhoto) {
+            detector = new FaceDetector.Builder(context).setProminentFaceOnly(true).build();
+        } else {
+            detector = new FaceDetector.Builder(context).build();
+        }
 
         if (!detector.isOperational()) {
             //Handle contingency
@@ -161,10 +160,6 @@ public class MyThread {
                 && currentIndex < allPhotoOnDevice.size() - 1) {
             currentIndex++;
             checkContainFaceImageOnList();
-        } else {
-            if (!disposable.isDisposed()) {
-                disposable.dispose();
-            }
         }
     }
 
